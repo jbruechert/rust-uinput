@@ -6,8 +6,8 @@ use nix::{fcntl, unistd};
 use nix::errno::Errno;
 use nix::sys::stat;
 use ffi::*;
-use {Result as Res, Error, Device, Event};
-use event::{self, Kind, Code};
+use crate::{Result as Res, Error, Device};
+use crate::event::{self, Kind, Code, Event};
 
 #[cfg(feature = "udev")]
 use udev;

@@ -8,6 +8,7 @@ license = "WTFPL"
 description = "Linux uinput wrapper."
 repository  = "https://github.com/meh/rust-uinput"
 keywords    = ["linux", "input"]
+edition     = "2021"
 
 [dependencies]
 libc       = "0.2"
