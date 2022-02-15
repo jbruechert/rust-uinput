@@ -20,7 +20,7 @@ enum_derive   = "0.1"
 
 [dependencies.libudev]
 optional = true
-version  = "0.2"
+version  = "0.3"
 
 [features]
 default = ["udev"]
