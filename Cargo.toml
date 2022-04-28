@@ -12,7 +12,7 @@ edition     = "2021"
 
 [dependencies]
 libc       = "0.2"
-nix        = { version = "0.23", default-features = false }
+nix        = { version = "0.24", default-features = false, features = ["fs"] }
 uinput-sys = "0.1"
 
 custom_derive = "0.1"
