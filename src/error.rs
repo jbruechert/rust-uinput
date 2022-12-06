@@ -1,10 +1,6 @@
 use std::fmt;
 use std::error;
 use std::ffi;
-use nix;
-
-#[cfg(feature = "udev")]
-use udev;
 
 /// UInput error.
 #[derive(Debug)]

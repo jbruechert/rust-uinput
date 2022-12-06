@@ -27,7 +27,7 @@ impl Device {
 				time:  timeval { tv_sec: 0, tv_usec: 0 },
 				kind:  kind as u16,
 				code:  code as u16,
-				value: value as i32,
+				value,
 			};
 
 			gettimeofday(&mut event.time, ptr::null_mut());
