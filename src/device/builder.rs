@@ -1,4 +1,4 @@
-use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd};
+use std::os::fd::{AsRawFd, FromRawFd};
 use std::path::Path;
 use std::{mem, slice};
 use std::fs::File;
@@ -267,6 +267,6 @@ impl Builder {
 			Errno::result(ui_dev_create(self.fd.as_raw_fd()))?;
 		}
 
-		Ok(Device::new(self.fd.into_raw_fd()))
+		Ok(Device::new(self.fd))
 	}
 }

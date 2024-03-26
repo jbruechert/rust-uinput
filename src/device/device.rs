@@ -1,4 +1,4 @@
-use std::os::fd::{AsRawFd, FromRawFd};
+use std::os::fd::AsRawFd;
 use std::{mem, ptr, slice, fs::File};
 use libc::c_int;
 use libc::{timeval, gettimeofday};
@@ -15,9 +15,9 @@ pub struct Device {
 
 impl Device {
 	/// Wrap a file descriptor in a `Device`.
-	pub fn new(fd: c_int) -> Self {
+	pub(crate) fn new(fd: File) -> Self {
 		Device {
-			fd: unsafe { File::from_raw_fd(fd) }
+			fd
 		}
 	}
 
