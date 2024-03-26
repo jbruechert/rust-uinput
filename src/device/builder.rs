@@ -24,8 +24,10 @@ pub struct Builder {
 impl Builder {
 	/// Create a builder from the specified path.
 	pub fn open<P: AsRef<Path>>(path: P) -> Res<Self> {
+		let fd = fcntl::open(path.as_ref(), fcntl::OFlag::O_WRONLY | fcntl::OFlag::O_NONBLOCK, stat::Mode::empty())?;
 		Ok(Builder {
-			fd:  unsafe { File::from_raw_fd(fcntl::open(path.as_ref(), fcntl::OFlag::O_WRONLY | fcntl::OFlag::O_NONBLOCK, stat::Mode::empty())?) },
+			// Safety: fd is not used anywhere else
+			fd:  unsafe { File::from_raw_fd(fd) },
 			def: unsafe { mem::zeroed() },
 			abs: None,
 		})
