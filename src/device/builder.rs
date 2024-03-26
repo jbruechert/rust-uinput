@@ -1,5 +1,7 @@
+use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd};
 use std::path::Path;
 use std::{mem, slice};
+use std::fs::File;
 use std::ffi::CString;
 use libc::c_int;
 use nix::{fcntl, unistd};
@@ -14,7 +16,7 @@ use udev;
 
 /// Device builder.
 pub struct Builder {
-	fd:  c_int,
+	fd:  File,
 	def: uinput_user_dev,
 	abs: Option<c_int>,
 }
@@ -23,7 +25,7 @@ impl Builder {
 	/// Create a builder from the specified path.
 	pub fn open<P: AsRef<Path>>(path: P) -> Res<Self> {
 		Ok(Builder {
-			fd:  fcntl::open(path.as_ref(), fcntl::OFlag::O_WRONLY | fcntl::OFlag::O_NONBLOCK, stat::Mode::empty())?,
+			fd:  unsafe { File::from_raw_fd(fcntl::open(path.as_ref(), fcntl::OFlag::O_WRONLY | fcntl::OFlag::O_NONBLOCK, stat::Mode::empty())?) },
 			def: unsafe { mem::zeroed() },
 			abs: None,
 		})
@@ -149,8 +151,8 @@ impl Builder {
 
 					value => {
 						unsafe {
-							Errno::result(ui_set_evbit(self.fd, value.kind()))?;
-							Errno::result(ui_set_keybit(self.fd, value.code()))?;
+							Errno::result(ui_set_evbit(self.fd.as_raw_fd(), value.kind()))?;
+							Errno::result(ui_set_keybit(self.fd.as_raw_fd(), value.code()))?;
 						}
 
 						Ok(self)
@@ -200,8 +202,8 @@ impl Builder {
 
 					value => {
 						unsafe {
-							Errno::result(ui_set_evbit(self.fd, value.kind()))?;
-							Errno::result(ui_set_keybit(self.fd, value.code()))?;
+							Errno::result(ui_set_evbit(self.fd.as_raw_fd(), value.kind()))?;
+							Errno::result(ui_set_keybit(self.fd.as_raw_fd(), value.code()))?;
 						}
 
 						Ok(self)
@@ -211,8 +213,8 @@ impl Builder {
 
 			Event::Relative(value) => {
 				unsafe {
-					Errno::result(ui_set_evbit(self.fd, value.kind()))?;
-					Errno::result(ui_set_relbit(self.fd, value.code()))?;
+					Errno::result(ui_set_evbit(self.fd.as_raw_fd(), value.kind()))?;
+					Errno::result(ui_set_relbit(self.fd.as_raw_fd(), value.code()))?;
 				}
 
 				Ok(self)
@@ -220,8 +222,8 @@ impl Builder {
 
 			Event::Absolute(value) => {
 				unsafe {
-					Errno::result(ui_set_evbit(self.fd, value.kind()))?;
-					Errno::result(ui_set_absbit(self.fd, value.code()))?;
+					Errno::result(ui_set_evbit(self.fd.as_raw_fd(), value.kind()))?;
+					Errno::result(ui_set_absbit(self.fd.as_raw_fd(), value.code()))?;
 				}
 
 				self.abs = Some(value.code());
@@ -261,10 +263,10 @@ impl Builder {
 			let ptr  = &self.def as *const _ as *const u8;
 			let size = mem::size_of_val(&self.def);
 
-			unistd::write(self.fd, slice::from_raw_parts(ptr, size))?;
-			Errno::result(ui_dev_create(self.fd))?;
+			unistd::write(&self.fd, slice::from_raw_parts(ptr, size))?;
+			Errno::result(ui_dev_create(self.fd.as_raw_fd()))?;
 		}
 
-		Ok(Device::new(self.fd))
+		Ok(Device::new(self.fd.into_raw_fd()))
 	}
 }
